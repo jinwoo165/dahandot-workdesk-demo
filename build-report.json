@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "production_revision_read_only": "4fa95d1672a7baf6c1834df661c0e69260e57954",
+  "bytes": 411090,
+  "sha256": "adb9f6bfd7d8f90f0133b5e6844582222a0ab042613f6a02a6955463537400cf",
+  "app_code_has_backend": false,
+  "browser_storage_used": false,
+  "outbound_allowlist": [
+    "https://api.open-meteo.com"
+  ],
+  "report_count": 7,
+  "task_count": 16,
+  "security_scope": "Static build checks; browser tests are reported separately. Same github.io account is not a separate browser origin."
+}

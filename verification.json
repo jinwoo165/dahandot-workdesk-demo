@@ -1,0 +1,97 @@
+{
+  "passed": 63,
+  "checks": [
+    "static absence: supabase\\.co",
+    "static absence: createClient",
+    "static absence: localStorage",
+    "static absence: sessionStorage",
+    "static absence: document\\.cookie",
+    "static absence: serviceWorker",
+    "static absence: sk-proj-",
+    "static absence: @hdc-",
+    "static absence: @gmail\\.",
+    "static absence: <input[^>]*password",
+    "CSP weather-only connections",
+    "no production URL navigation",
+    "initial work view",
+    "three briefing entries",
+    "task detail accessible",
+    "no login form",
+    "no placeholder wording",
+    "fixed region calendar .scenic-banner",
+    "fixed region calendar #weatherWidget",
+    "fixed region calendar .shared-files",
+    "fixed region links .scenic-banner",
+    "fixed region links #weatherWidget",
+    "fixed region links .shared-files",
+    "fixed region archived .scenic-banner",
+    "fixed region archived #weatherWidget",
+    "fixed region archived .shared-files",
+    "fixed region conversation .scenic-banner",
+    "fixed region conversation #weatherWidget",
+    "fixed region conversation .shared-files",
+    "fixed region work .scenic-banner",
+    "fixed region work #weatherWidget",
+    "fixed region work .shared-files",
+    "all task count",
+    "search task",
+    "task modal opens",
+    "task history populated",
+    "report summary opens",
+    "report content nontrivial",
+    "42 calendar cells",
+    "month history entries",
+    "history snapshot accessible",
+    "month navigation",
+    "eight business links",
+    "safe link attributes",
+    "link removal is local",
+    "memory dialogue stored",
+    "no dialogue network transmission",
+    "dialogue escaped",
+    "16 exported tasks",
+    "20 events",
+    "48 history records",
+    "five existing and one entered dialogue",
+    "no browser storage accessed",
+    "reload clears entered dialogue",
+    "theme switch",
+    "disconnected account notice",
+    "mobile no horizontal overflow",
+    "mobile calendar renders",
+    "mobile recent files visible",
+    "mobile final no horizontal overflow",
+    "only local document and public weather requests",
+    "no POST or writes",
+    "zero uncaught browser errors"
+  ],
+  "uncaught_errors": [],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:40787/index.html",
+      "method": "GET"
+    },
+    {
+      "url": "https://api.open-meteo.com/v1/forecast?latitude=36.8151&longitude=127.1139&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_min,temperature_2m_max,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=2",
+      "method": "GET"
+    },
+    {
+      "url": "https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_min,temperature_2m_max,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:40787/index.html",
+      "method": "GET"
+    },
+    {
+      "url": "https://api.open-meteo.com/v1/forecast?latitude=36.8151&longitude=127.1139&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_min,temperature_2m_max,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=2",
+      "method": "GET"
+    },
+    {
+      "url": "https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_min,temperature_2m_max,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=2",
+      "method": "GET"
+    }
+  ],
+  "sha256": "adb9f6bfd7d8f90f0133b5e6844582222a0ab042613f6a02a6955463537400cf",
+  "scope": "Chromium desktop 1440x1000 and mobile 360x800. Weather responses mocked for UI tests, not a live forecast verification. No real phones or production login tested."
+}
