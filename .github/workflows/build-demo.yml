@@ -3,9 +3,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'scripts/build_demo.py'
+      - 'scripts/**'
       - 'demo-content.json'
-      - 'release-approval.json'
       - '.github/workflows/build-demo.yml'
   workflow_dispatch:
 permissions:
@@ -17,35 +16,33 @@ jobs:
   build:
     if: github.repository == 'jinwoo165/dahandot-workdesk-demo'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Build standalone presentation without backend credentials
-        run: python scripts/build_demo.py
-      - name: Approve only the exact browser-tested release
-        id: approved
-        shell: python
         run: |
-          from pathlib import Path
-          import json, os
-          approval = Path('release-approval.json')
-          ok = approval.exists() and json.loads(approval.read_text()).get('sha256') == json.loads(Path('build-report.json').read_text())['sha256']
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write('ok=' + str(ok).lower() + '\n')
-          print('Tested release checksum matches:', ok)
-      - name: Commit only approved standalone release to this demo repository
-        if: steps.approved.outputs.ok == 'true'
+          python scripts/build_demo.py
+          python scripts/refine_demo.py
+      - name: Install pinned browser test dependency
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Verify desktop, mobile, controls, memory-only input and network isolation
+        run: python scripts/test_demo.py
+      - name: Commit only the tested standalone release to this demo repository
         run: |
           test "$GITHUB_REPOSITORY" = 'jinwoo165/dahandot-workdesk-demo'
           test "$GITHUB_REF" = 'refs/heads/main'
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html .nojekyll build-report.json
+          cp qa/test-report.json verification.json
+          git add index.html .nojekyll build-report.json verification.json
           if ! git diff --cached --quiet; then
             git commit -m 'Publish browser-tested standalone demo [skip ci]'
             git push origin HEAD:main
           fi
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: independent-demo-build
           path: |
@@ -53,6 +50,7 @@ jobs:
             build.js
             build-report.json
             demo-content.json
-            scripts/build_demo.py
+            scripts
+            qa
           retention-days: 14
           if-no-files-found: error
