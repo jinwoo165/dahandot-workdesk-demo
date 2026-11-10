@@ -1,0 +1,39 @@
+name: Prepare isolated demo UI
+on:
+  push:
+    paths:
+      - '.github/workflows/prepare-demo.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read only approved public presentation files at a pinned revision
+        shell: python
+        run: |
+          from pathlib import Path
+          from urllib.request import urlopen, Request
+          import hashlib, json
+          root = Path('ui-snapshot')
+          revision = '4fa95d1672a7baf6c1834df661c0e69260e57954'
+          files = ['src/app.js','src/style.css','src/model.js','src/conversations.js','src/widgets.js','src/source-health.js','src/file-summaries.js','src/task-filters.js','src/history.js','src/assets/city-panorama-ai.webp','public/images/chatgpt.svg','public/images/clovanote.svg','public/icon.svg']
+          hashes = {}
+          for name in files:
+              url = f'https://raw.githubusercontent.com/jinwoo165/dahandot-workdesk/{revision}/{name}'
+              with urlopen(Request(url, headers={'User-Agent':'isolated-demo-ui-snapshot'}), timeout=30) as response:
+                  data = response.read()
+              path = root / name
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_bytes(data)
+              hashes[name] = hashlib.sha256(data).hexdigest()
+          (root / 'snapshot.json').write_text(json.dumps({'source_revision': revision, 'files': hashes, 'scope': 'public presentation code only; no config, credentials, database, or user records'}, indent=2))
+          print('Read-only UI snapshot prepared. Production repository and database were not modified.')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: isolated-ui-snapshot
+          path: ui-snapshot
+          retention-days: 7
+          if-no-files-found: error
