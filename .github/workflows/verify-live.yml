@@ -1,0 +1,58 @@
+name: Verify published demo and production preservation
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/verify-live.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'jinwoo165/dahandot-workdesk-demo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read public endpoints and compare exact release hashes
+        shell: python
+        run: |
+          import hashlib, json, time
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          expected = json.loads(Path('build-report.json').read_text())['sha256']
+          demo = 'https://jinwoo165.github.io/dahandot-workdesk-demo/'
+          prod = 'https://jinwoo165.github.io/dahandot-workdesk/'
+          revision = '4fa95d1672a7baf6c1834df661c0e69260e57954'
+          def read(url):
+              with urlopen(Request(url,headers={'User-Agent':'dahandot-release-verification','Cache-Control':'no-cache'}),timeout=20) as r:
+                  return r.status,r.read()
+          result={'demo_url':demo,'expected_sha256':expected,'attempts':[]}
+          for i in range(10):
+              try:
+                  status,body=read(demo)
+                  digest=hashlib.sha256(body).hexdigest()
+                  result['attempts'].append({'status':status,'sha256':digest})
+                  if status==200 and digest==expected:
+                      result['published_tested_release']=True
+                      break
+              except Exception as e:
+                  result['attempts'].append({'error':str(e)[:160]})
+              time.sleep(8)
+          _,data=read('https://api.github.com/repos/jinwoo165/dahandot-workdesk/git/ref/heads/main')
+          result['production_main']=json.loads(data)['object']['sha']
+          result['production_main_unchanged']=result['production_main']==revision
+          _,expected_prod=read('https://raw.githubusercontent.com/jinwoo165/dahandot-workdesk/'+revision+'/docs/index.html')
+          status,actual_prod=read(prod)
+          result['production_public_status']=status
+          result['production_entrypoint_unchanged']=actual_prod==expected_prod
+          Path('live-verification.json').write_text(json.dumps(result,indent=2))
+          print(json.dumps(result,indent=2))
+          assert result.get('published_tested_release'), 'Demo page does not yet match the tested release'
+          assert result['production_main_unchanged'], 'Production head changed; do not overwrite anything'
+          assert result['production_entrypoint_unchanged'], 'Production public entrypoint differs; inspect without changing it'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-verification
+          path: live-verification.json
+          retention-days: 14
